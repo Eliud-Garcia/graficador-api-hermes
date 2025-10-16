@@ -15,8 +15,8 @@ LiquidCrystal lcd(RS, E, D4, D5, D6, D7);
 #define POT_EQ 34  // Potenciómetro que simula inclinación
 
 // ---------------- CONFIGURACIÓN WIFI ----------------
-const char* ssid = "DIOSA";   // Cambia si usas otra red
-const char* password = "23041999";
+const char* ssid = "redwifi";   // Cambia si usas otra red
+const char* password = "clave";
 
 // ---------------- CONFIGURACIÓN HERMES MQTT ----------------
 const char* mqtt_server = "31.97.139.172"; // Broker HermesQTT

@@ -1,0 +1,44 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #111;
+    color: white;
+    font-family: sans-serif;
+}
+
+#controls {
+    padding: 10px;
+    text-align: center;
+}
+
+input,
+button {
+    padding: 8px;
+    margin: 5px;
+    border-radius: 5px;
+    border: none;
+    font-size: 14px;
+}
+
+input {
+    width: 300px;
+}
+
+button {
+    background: cyan;
+    color: black;
+    cursor: pointer;
+}
+
+#chartContainer {
+    width: 100vw;
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+canvas {
+    max-width: 90%;
+    max-height: 90%;
+}

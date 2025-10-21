@@ -1,103 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Gráfica de Sensor Dinámica</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { margin:0; padding:0; background:#111; color:white; font-family:sans-serif; }
-    #controls { padding:10px; text-align:center; }
-    input, button {
-      padding:8px;
-      margin:5px;
-      border-radius:5px;
-      border:none;
-      font-size:14px;
-    }
-    input { width:300px; }
-    button { background:cyan; color:black; cursor:pointer; }
-    #chartContainer { width: 100vw; height: 90vh; display:flex; align-items:center; justify-content:center; }
-    canvas { max-width: 90%; max-height: 90%; }
-  </style>
+  <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
   <div id="controls">
-    <input type="text" id="sensorId" placeholder="Escribe el ID del sensor" value="f1225f50-18ad-4d03-9e6b-6c0a3823c5ee">
+    <input type="text" id="sensorId" placeholder="Escribe el ID del sensor"
+      value="f1225f50-18ad-4d03-9e6b-6c0a3823c5ee">
     <button onclick="updateSensor()">Actualizar</button>
   </div>
-  
+
   <div id="chartContainer">
     <canvas id="myChart"></canvas>
   </div>
 
-  <script>
-    let chart;
-    let currentSensorId = document.getElementById("sensorId").value;
-
-    async function loadData() {
-      if (!currentSensorId) return;
-
-      const url = `https://hermes-api-jt8k.onrender.com/api/sensor/data/${currentSensorId}?limit=50`;
-      const response = await fetch(url);
-      const json = await response.json();
-
-      if (!json.data) return;
-
-      // Invertir para que lo más reciente esté a la derecha
-      const data = json.data.reverse();
-
-      const labels = data.map(item => new Date(item.createdAt).toLocaleTimeString());
-      const values = data.map(item => item.value);
-
-      if (!chart) {
-        chart = new Chart(document.getElementById("myChart"), {
-          type: "line",
-          data: {
-            labels: labels,
-            datasets: [{
-              label: "Sensor",
-              data: values,
-              borderColor: "cyan",
-              backgroundColor: "rgba(0,255,255,0.2)",
-              fill: true,
-              tension: 0.3
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "white" } } },
-            scales: {
-              x: { ticks: { color: "white" } },
-              y: { ticks: { color: "white" } }
-            }
-          }
-        });
-      } else {
-        chart.data.labels = labels;
-        chart.data.datasets[0].data = values;
-        chart.update();
-      }
-    }
-
-    function updateSensor() {
-      currentSensorId = document.getElementById("sensorId").value;
-      if (chart) {
-        chart.destroy();
-        chart = null;
-      }
-      loadData();
-    }
-
-    // Auto refresco cada 10 segundos
-    setInterval(loadData, 100);
-
-    // Cargar el sensor inicial
-	//para usarlo toca tener el id del sensor que da hermes
-	//y pegarlo
-    loadData();
-  </script>
+  <script src="./main.js"></script>
 </body>
 
 </html>
-
-

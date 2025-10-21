@@ -15,11 +15,11 @@ LiquidCrystal lcd(RS, E, D4, D5, D6, D7);
 #define POT_EQ 34  // Potenciómetro que simula inclinación
 
 // ---------------- CONFIGURACIÓN WIFI ----------------
-const char* ssid = "redwifi";   // Cambia si usas otra red
-const char* password = "clave";
+const char* ssid = "DIOSA";  // Cambia si usas otra red
+const char* password = "23041999";
 
 // ---------------- CONFIGURACIÓN HERMES MQTT ----------------
-const char* mqtt_server = "31.97.139.172"; // Broker HermesQTT
+const char* mqtt_server = "31.97.139.172";  // Broker HermesQTT
 const int mqtt_port = 1883;
 const char* mqtt_user = "";  // (vacío)
 const char* mqtt_password = "";
@@ -29,16 +29,17 @@ const char* sensorId = "f1225f50-18ad-4d03-9e6b-6c0a3823c5ee";
 WiFiClient espClient;
 PubSubClient client(espClient);
 String mqtt_topic;
-float lastInclination = -999.0; // para evitar envíos repetidos
+float lastInclination = -999.0;  // para evitar envíos repetidos
 
 // ---------------------------------------------------
 void setup() {
-  Serial.begin(9600);
+  //115200
+  Serial.begin(115200);
   lcd.begin(16, 2);
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Balanza Romana");
-  delay(1500);
+  delay(2000);
   lcd.clear();
 
   setup_wifi();  // Solo mostrará en Serial
@@ -68,7 +69,7 @@ void setup_wifi() {
   } else {
     Serial.println("\n❌ Error al conectar WiFi");
   }
-  lcd.clear();
+  //lcd.clear();
 }
 
 // ---------------------------------------------------
@@ -85,8 +86,10 @@ void reconnect() {
       delay(5000);
     }
   }
-  lcd.clear();
+  //lcd.clear();
 }
+
+
 
 // ---------------------------------------------------
 void loop() {
@@ -95,8 +98,8 @@ void loop() {
   }
   client.loop();
 
-  int valor = analogRead(POT_EQ);   // Valor entre 0 y 4095
-  int puntoMedio = 2048;            // Equilibrio
+  int valor = analogRead(POT_EQ);  // Valor entre 0 y 4095
+  int puntoMedio = 2048;           // Equilibrio
   int diferencia = valor - puntoMedio;
 
   // Calcular porcentaje de inclinación (-100 a +100)
@@ -114,17 +117,14 @@ void loop() {
   }
 
   // --- Mostrar solo la inclinación en LCD ---
+
   lcd.clear();
-  //lcd.setCursor(0, 0);
-  //lcd.print("Conectado:");
-  //lcd.setCursor(0, 1);
-  //lcd.print(direccion);
 
   // --- Mostrar y enviar datos por Serial / MQTT ---
   if (abs(inclinacion - lastInclination) > 1.0) {
     char payload[60];
     snprintf(payload, sizeof(payload), "{\"value\":%.2f}", inclinacion);
-    
+
     if (client.publish(mqtt_topic.c_str(), payload)) {
       Serial.println("Enviando:");
       Serial.println(payload);
@@ -136,5 +136,6 @@ void loop() {
     lastInclination = inclinacion;
   }
 
-  delay(400); // 1000 = 1 segundo
+
+  delay(400);  // 1000 = 1 segundo
 }

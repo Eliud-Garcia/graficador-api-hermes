@@ -1,6 +1,6 @@
 // ------------------- CONFIGURACIÓN -------------------
 string SENSOR_ID = "f1225f50-18ad-4d03-9e6b-6c0a3823c5ee";
-float INTERVALO_CONSULTA = 5.0;
+float INTERVALO_CONSULTA = 1.0;
 float UMBRAL_VALOR = 100.0;
 
 // --- Colores ---
@@ -26,7 +26,9 @@ hacerPeticionAPI()
 {
     if (conectado)
     {
-        string url = "https://hermes-api-jt8k.onrender.com/api/sensor/data/" + SENSOR_ID + "?limit=1";
+        //https://hermes-client.vercel.app/api/sensor/data/f1225f50-18ad-4d03-9e6b-6c0a3823c5ee?limit=1
+        //
+        string url = "https://hermes-client.vercel.app/api/sensor/data/" + SENSOR_ID + "?limit=1";
         llOwnerSay("Consultando API...");
         g_http_request_id = llHTTPRequest(url, [HTTP_METHOD, "GET"], "");
     }

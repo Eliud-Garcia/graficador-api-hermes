@@ -1,6 +1,6 @@
 // ------------------- CONFIGURACIÓN -------------------
 string SENSOR_ID = "f1225f50-18ad-4d03-9e6b-6c0a3823c5ee";
-float INTERVALO_CONSULTA = 1.0;
+float INTERVALO_CONSULTA = 0.6;
 float UMBRAL_VALOR = 100.0;
 
 // --- Colores ---
@@ -10,7 +10,7 @@ vector COLOR_DESCONECTADO = <0.5, 0.5, 0.5>;
 vector COLOR_ERROR = <1.0, 1.0, 0.0>;
 
 //inclinacion
-float MAX_ANGULO = 26.0; // Máximo ángulo de inclinación (correspondiente a tus ejemplos)
+float MAX_ANGULO = 90.0; // Máximo ángulo de inclinación (correspondiente a tus ejemplos)
 rotation ROT_HORIZONTAL; // Rotación inicial (horizontal)
 
 // --- Variables de control ---
@@ -29,7 +29,7 @@ hacerPeticionAPI()
         //https://hermes-client.vercel.app/api/sensor/data/f1225f50-18ad-4d03-9e6b-6c0a3823c5ee?limit=1
         //
         string url = "https://hermes-client.vercel.app/api/sensor/data/" + SENSOR_ID + "?limit=1";
-        llOwnerSay("Consultando API...");
+        //llOwnerSay("Consultando API...");
         g_http_request_id = llHTTPRequest(url, [HTTP_METHOD, "GET"], "");
     }
 }
@@ -59,7 +59,7 @@ rotation calcularRotacion(float inclinacion, integer lado)
     if (lado == -1) // izquierda
         y = 270.0 + (MAX_ANGULO * (inclinacion / 100.0)); // hacia arriba (izquierda)
     else             // derecha
-        y = 270.0 + (MAX_ANGULO * (inclinacion / 100.0)); // mismo ángulo en Y
+        y = 270.0 - (MAX_ANGULO * (inclinacion / 100.0)); // mismo ángulo en Y
 
     vector euler;
 
@@ -77,7 +77,7 @@ default
 {
     state_entry()
     {
-        llOwnerSay("Script de color por API iniciado. Toca el objeto para conectar/desconectar.");
+        llOwnerSay("Script de conexión a API iniciado. Toca el objeto para conectar/desconectar.");
         llSetColor(COLOR_DESCONECTADO, ALL_SIDES);
         ROT_HORIZONTAL = llEuler2Rot(<0.0, 270.0, 0.0> * DEG_TO_RAD);
         llSetRot(ROT_HORIZONTAL);
@@ -107,7 +107,7 @@ default
             if (message == "Conectar")
             {
                 conectado = TRUE;
-                llOwnerSay("Conectado a la API. Iniciando consultas cada " + (string)INTERVALO_CONSULTA + " segundos.");
+                llOwnerSay("consultas cada " + (string)INTERVALO_CONSULTA + " segundos.");
                 llSetTimerEvent(INTERVALO_CONSULTA);
                 
                 // --- CORRECCIÓN AQUÍ ---
@@ -143,21 +143,19 @@ default
                 if (valor_str != "-1")
                 {
                     float valor_float = (float)valor_str;
-                    llOwnerSay("Valor obtenido: " + valor_str);
-
-                    if (valor_float > UMBRAL_VALOR)
-                    {
-                        llSetColor(COLOR_ROJO, ALL_SIDES);
-                    }
-                    else
-                    {
-                        llSetColor(COLOR_AZUL, ALL_SIDES);
-                    }
+                    //if (valor_float > UMBRAL_VALOR)
+                    //{
+                    //    llSetColor(COLOR_ROJO, ALL_SIDES);
+                    //}
+                    //else
+                    //{
+                    //    llSetColor(COLOR_AZUL, ALL_SIDES);
+                    //}
                     integer lado = 0;
                     string lado_txt = "EQUILIBRIO";
                     if(valor_float == 0){
                         lado = 0;
-                    }else if(valor_float < 0){
+                    }else if(valor_float < 0.0){
                         //derecha
                         lado = 1;
                         lado_txt = "DERECHA";
@@ -168,8 +166,7 @@ default
                     }
                     //ultimo_numero =  llFabs(ultimo_numero);
                 
-                    llOwnerSay("Número obtenido: " + (string)valor_float +
-                                " ⇒ inclinación " + lado_txt);
+                    llOwnerSay(lado_txt+" " + (string) llFabs(valor_float) + "%");
                 
                     rotation nuevaRot = calcularRotacion((float)valor_float, lado);
                     llSetRot(nuevaRot);

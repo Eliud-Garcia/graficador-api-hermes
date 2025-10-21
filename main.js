@@ -1,14 +1,26 @@
 let chart;
 let currentSensorId = document.getElementById("sensorId").value;
+let lastDataJSON = ""; // Guarda la última respuesta para comparar
 
 async function loadData() {
     if (!currentSensorId) return;
-    //https://hermes-client.vercel.app/api/sensor/data/f1225f50-18ad-4d03-9e6b-6c0a3823c5ee?limit=1
+
     const url = `https://hermes-client.vercel.app/api/sensor/data/${currentSensorId}?limit=50`;
     const response = await fetch(url);
     const json = await response.json();
 
     if (!json.data) return;
+
+    // Convertimos a string para comparar fácilmente con la respuesta anterior
+    const currentDataJSON = JSON.stringify(json.data);
+
+    // Si la data no cambió, no hacemos nada
+    if (currentDataJSON === lastDataJSON) {
+        return;
+    }
+
+    // Actualizamos el registro de la última data
+    lastDataJSON = currentDataJSON;
 
     // Invertir para que lo más reciente esté a la derecha
     const data = json.data.reverse();
@@ -48,6 +60,7 @@ async function loadData() {
 
 function updateSensor() {
     currentSensorId = document.getElementById("sensorId").value;
+    lastDataJSON = ""; // reinicia comparación al cambiar sensor
     if (chart) {
         chart.destroy();
         chart = null;

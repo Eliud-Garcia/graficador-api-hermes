@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pantalla LCD - Sensor</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      color: #0ff;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px cyan;
+    }
+
+    .lcd {
+      font-size: 5rem;
+      background: #002b00;
+      color: #00ff00;
+      border: 5px solid #00aa00;
+      border-radius: 10px;
+      padding: 30px 60px;
+      box-shadow: 0 0 30px #00ff00;
+      text-align: center;
+      width: 500px;
+    }
+
+    .updated {
+      margin-top: 15px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .sensor-input {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      padding: 8px 10px;
+      border-radius: 5px;
+      border: none;
+      width: 250px;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      background: #00ffcc;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #00e6b8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Pantalla LCD</h1>
+
+  <div class="sensor-input">
+    <input id="sensorId" type="text" placeholder="ID del sensor (UUID)"
+        value="f1225f50-18ad-4d03-9e6b-6c0a3823c5ee">
+    >
+    
+    <button onclick="updateSensor()">Cargar</button>
+  </div>
+
+  <div class="lcd" id="lcdValue">---</div>
+  <div class="updated" id="lastUpdate"></div>
+
+  <script>
+    let currentSensorId = "";
+    let lastValue = null;
+
+    async function loadData() {
+      if (!currentSensorId) return;
+
+      const url = `https://hermes-client.vercel.app/api/sensor/data/${currentSensorId}?limit=1`;
+
+      try {
+        const response = await fetch(url);
+        const json = await response.json();
+
+        if (!json.data || json.data.length === 0) return;
+
+        const value = json.data[0].value;
+        let numero = parseFloat(value);
+        let dir = "";
+        if(numero === 0.0){
+            dir = "EQUILIBRIO";
+        }
+        if(numero > 0.0){
+            dir = "IZQUIERDA";
+        }
+        if(numero < 0.0){
+            dir = "DERECHA";
+        }
+        numero = Math.abs(numero);
+        const displayText = `${numero.toFixed(2)}%\n${dir}`;
+        // Solo actualiza si el valor cambia
+        if (value !== lastValue) {
+          document.getElementById("lcdValue").textContent = displayText;
+          document.getElementById("lastUpdate").textContent =
+            "Última actualización: " + new Date().toLocaleTimeString();
+          lastValue = value;
+        }
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+      }
+    }
+
+    function updateSensor() {
+      const input = document.getElementById("sensorId");
+      currentSensorId = input.value.trim();
+      lastValue = null;
+      loadData();
+    }
+
+    // Actualiza cada 3 segundos si hay un ID configurado
+    setInterval(loadData, 3000);
+  </script>
+</body>
+</html>
